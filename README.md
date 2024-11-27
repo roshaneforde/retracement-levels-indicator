@@ -32,12 +32,6 @@ Additionally, if the price breaks out above or below the previous day's high or 
 
 To further increase the probability of your trades, you can use the 20-period Simple Moving Average (SMA) to confirm the medium-term trend or the 5-period SMA for a shorter-term trend confirmation.
 
-## Dos and Don'ts
-
-* Never sell a green candle.
-* Never buy a red candle.
-* Stop loss should be placed behind the previous candle's wick.
-
 ## GBPJPY Example:
 
 If the first half of the day (the first H12 candle) is bullish, we anticipate a continuation and look for a bullish trade in the second half of the day (the second H12 candle).
