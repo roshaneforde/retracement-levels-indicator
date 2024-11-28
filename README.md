@@ -44,7 +44,7 @@ If the first half of the day (the first H12 candle) is bullish, we anticipate a 
 
 **Target:** You can take profits at the close of the current H12 candle or the next significant support or resistance level.
 
-Example Screenshots:
+![GBPJPY Trade Example](https://github.com/roshaneforde/retracement-levels-indicator/blob/main/screenshots/gbpjpy-trade-example.jpg)
 
 ## XAUUSD Example:
 
@@ -58,7 +58,7 @@ If the first half of the day (the first H12 candle) is bearish, we anticipate a 
 
 **Target:** You can take profits at the close of the current H12 candle or the next significant support or resistance level.
 
-Example Screenshots:
+![XAUUSD Trade Example](https://github.com/roshaneforde/retracement-levels-indicator/blob/main/screenshots/xauusd-trade-example.jpg)
 
 ## Indicator Features
 
