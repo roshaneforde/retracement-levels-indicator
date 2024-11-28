@@ -32,7 +32,7 @@ Additionally, if the price breaks out above or below the previous day's high or 
 
 To further increase the probability of your trades, you can use the 20-period Simple Moving Average (SMA) to confirm the medium-term trend or the 5-period SMA for a shorter-term trend confirmation.
 
-## GBPJPY Example:
+## GBPJPY - November 6, 2024:
 
 If the first half of the day (the first H12 candle) is bullish, we anticipate a continuation and look for a bullish trade in the second half of the day (the second H12 candle).
 
@@ -46,7 +46,7 @@ If the first half of the day (the first H12 candle) is bullish, we anticipate a 
 
 ![GBPJPY Trade Example](https://github.com/roshaneforde/retracement-levels-indicator/blob/main/screenshots/gbpjpy-trade-example.jpg)
 
-## XAUUSD Example:
+## XAUUSD - November 25, 2024:
 
 If the first half of the day (the first H12 candle) is bearish, we anticipate a continuation and look for a bearish trade in the second half of the day (the second H12 candle).
 
