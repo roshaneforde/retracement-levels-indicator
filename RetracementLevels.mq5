@@ -8,17 +8,9 @@
 #property version "1.04"
 #property indicator_chart_window
 
-#property indicator_buffers 4;
-#property indicator_plots   4;
+#property indicator_buffers 8;
+#property indicator_plots   8;
 #property indicator_type1   DRAW_NONE;
-
-enum DrawOn {
-  LAST_CANDLE,
-  LAST_THREE_CANDLES,
-  LAST_FIVE_CANDLES,
-  LAST_TWENTY_CANDLES,
-  LAST_ONE_HUNDRED_CANDLES
-};
 
 enum YesNo {
   YES,
@@ -33,7 +25,6 @@ enum HigherTimeframe {
 };
 
 input YesNo drawOnCurrentChart = YES; // Draw On Current Chart
-input DrawOn drawOn = LAST_CANDLE; // Draw On
 
 input YesNo drawLineOne = YES; // Draw Line One
 input double lineOneRetracementPercentage = 0.236; // Line One Retracement Percentage
@@ -67,20 +58,32 @@ input HigherTimeframe higherTimeframe = H12; // Higher Timeframe
 
 input YesNo testMode = NO; // Test Mode (For Backtesting)
 
-double lineOneRetracementLevelBuffer[];
-double lineTwoRetracementLevelBuffer[];
-double lineThreeRetracementLevelBuffer[];
-double lineFourRetracementLevelBuffer[];
+// Lower timeframe buffers
+double lineOneBuffer[];
+double lineTwoBuffer[];
+double lineThreeBuffer[];
+double lineFourBuffer[];
+
+// Higher timeframe buffers
+double higherTimeframeLineOneBuffer[];
+double higherTimeframeLineTwoBuffer[];
+double higherTimeframeLineThreeBuffer[];
+double higherTimeframeLineFourBuffer[];
 
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
 int OnInit()
 {
-  SetIndexBuffer(0, lineOneRetracementLevelBuffer, INDICATOR_DATA);
-  SetIndexBuffer(1, lineTwoRetracementLevelBuffer, INDICATOR_DATA);
-  SetIndexBuffer(2, lineThreeRetracementLevelBuffer, INDICATOR_DATA);
-  SetIndexBuffer(3, lineFourRetracementLevelBuffer, INDICATOR_DATA);
+  SetIndexBuffer(0, lineOneBuffer, INDICATOR_DATA);
+  SetIndexBuffer(1, lineTwoBuffer, INDICATOR_DATA);
+  SetIndexBuffer(2, lineThreeBuffer, INDICATOR_DATA);
+  SetIndexBuffer(3, lineFourBuffer, INDICATOR_DATA);
+
+  SetIndexBuffer(4, higherTimeframeLineOneBuffer, INDICATOR_DATA);
+  SetIndexBuffer(5, higherTimeframeLineTwoBuffer, INDICATOR_DATA);
+  SetIndexBuffer(6, higherTimeframeLineThreeBuffer, INDICATOR_DATA);
+  SetIndexBuffer(7, higherTimeframeLineFourBuffer, INDICATOR_DATA);
 
   return (INIT_SUCCEEDED);
 }
@@ -105,34 +108,19 @@ int OnCalculate(const int rates_total,
     return (rates_total);
   }
 
-  // Number of candles
-  int totalCandles = rates_total - 2;
-
-  // Draw on the last three candles
-  if (drawOn == LAST_THREE_CANDLES && rates_total > 4) {
-    totalCandles = rates_total - 4;
-  }
-
-  // Draw on the last five candles
-  if (drawOn == LAST_FIVE_CANDLES && rates_total > 6) {
-    totalCandles = rates_total - 6;
-  }
-
-  // Draw on the last twenty candles
-  if (drawOn == LAST_TWENTY_CANDLES && rates_total > 21) {
-    totalCandles = rates_total - 21;
-  }
-
-  // Draw on the last one hundred candles
-  if (drawOn == LAST_ONE_HUNDRED_CANDLES && rates_total > 101) {
-    totalCandles = rates_total - 101;
-  }
-
   // Remove all retracement ojects
   removeRetracementOjects();
 
   // Draw objects for current chart
   if (drawOnCurrentChart == YES) {
+    // Number of candles
+    int totalCandles = rates_total - 2;
+
+    // Test Mode - Draw on the last 100 candles
+    if (rates_total > 101 && testMode == YES) {
+      totalCandles = rates_total - 101;
+    }
+
     for (int i = totalCandles; i < rates_total; i++) {
       drawRetracementOjects(i, time, open, high, low, close, rates_total);
     }
@@ -140,7 +128,17 @@ int OnCalculate(const int rates_total,
 
   // Draw objects for higher timeframe
   if (drawHigherTimeframe == YES) {
-    drawHigherTimeframeObjects();
+    
+    int totalHigherTimeframeCandles = 1;
+
+    // Test Mode - Draw on the last 100 candles
+    if (testMode == YES) {
+      totalHigherTimeframeCandles = 100;
+    }
+
+    for (int i = 1; i <= totalHigherTimeframeCandles; i++) {
+      drawHigherTimeframeObjects(i);
+    }
   }
 
   return (rates_total);
@@ -181,10 +179,10 @@ void drawRetracementOjects(int i, const datetime &time[], const double &open[], 
     lineFourRetracementLevel = low[i] + ((high[i] - low[i]) * lineFourRetracementPercentage);
   }
   
-  lineOneRetracementLevelBuffer[i] = lineOneRetracementLevel;
-  lineTwoRetracementLevelBuffer[i] = lineTwoRetracementLevel;
-  lineThreeRetracementLevelBuffer[i] = lineThreeRetracementLevel;
-  lineFourRetracementLevelBuffer[i] = lineFourRetracementLevel;
+  lineOneBuffer[i] = lineOneRetracementLevel;
+  lineTwoBuffer[i] = lineTwoRetracementLevel;
+  lineThreeBuffer[i] = lineThreeRetracementLevel;
+  lineFourBuffer[i] = lineFourRetracementLevel;
 
   // Define a unique name for each object
   string lineOneName = "RetracementLineOne_" + IntegerToString(i);
@@ -192,27 +190,6 @@ void drawRetracementOjects(int i, const datetime &time[], const double &open[], 
   string lineThreeName = "RetracementLineThree_" + IntegerToString(i);
   string lineFourName = "RetracementLineFour_" + IntegerToString(i);
   string rectangleName = "HighlightedArea_" + IntegerToString(i);
-
-  // Delete the object if it already exists (to prevent duplicates)
-  if (ObjectFind(0, lineOneName) != -1) {
-    ObjectDelete(0, lineOneName);
-  }
-
-  if (ObjectFind(0, lineTwoName) != -1) {
-    ObjectDelete(0, lineTwoName);
-  }
-
-  if (ObjectFind(0, lineThreeName) != -1) {
-    ObjectDelete(0, lineThreeName);
-  }
-
-  if (ObjectFind(0, lineFourName) != -1) {
-    ObjectDelete(0, lineFourName);
-  }
-
-  if (ObjectFind(0, rectangleName) != -1) {
-    ObjectDelete(0, rectangleName);
-  }
 
   // Test Mode - Draw on continuation candles only
   if (testMode == YES) {
@@ -270,7 +247,7 @@ void drawRetracementOjects(int i, const datetime &time[], const double &open[], 
 //+------------------------------------------------------------------+
 //| Draw object on higher timeframe                                  |
 //+------------------------------------------------------------------+
-void drawHigherTimeframeObjects()
+void drawHigherTimeframeObjects(int i)
 {
   // Store timeframe
   ENUM_TIMEFRAMES timeframe = PERIOD_H12;
@@ -292,10 +269,10 @@ void drawHigherTimeframeObjects()
   }
 
   // Previous candle data
-  double previousCandleOpen = iOpen(_Symbol, timeframe, 1);
-  double previousCandleLow = iLow(_Symbol, timeframe, 1);
-  double previousCandleHigh = iHigh(_Symbol, timeframe, 1);
-  double previousCandleClose = iClose(_Symbol, timeframe, 1);
+  double previousCandleOpen = iOpen(_Symbol, timeframe, i);
+  double previousCandleLow = iLow(_Symbol, timeframe, i);
+  double previousCandleHigh = iHigh(_Symbol, timeframe, i);
+  double previousCandleClose = iClose(_Symbol, timeframe, i);
 
   // Retracement levels
   double lineOneRetracementLevel = 0;
@@ -319,16 +296,32 @@ void drawHigherTimeframeObjects()
     lineFourRetracementLevel = previousCandleLow + ((previousCandleHigh - previousCandleLow) * lineFourRetracementPercentage);
   }
 
+  higherTimeframeLineOneBuffer[i] = lineOneRetracementLevel;
+  higherTimeframeLineTwoBuffer[i] = lineTwoRetracementLevel;
+  higherTimeframeLineThreeBuffer[i] = lineThreeRetracementLevel;
+  higherTimeframeLineFourBuffer[i] = lineFourRetracementLevel;
+
   // Define a unique name for each object
-  string lineOneName = "HigherTimeframeRetracementLineOne";
-  string lineTwoName = "HigherTimeframeRetracementLineTwo";
-  string lineThreeName = "HigherTimeframeRetracementLineThree";
-  string lineFourName = "HigherTimeframeRetracementLineFour";
-  string rectangleName = "HigherTimeframeHighlightedArea";
+  string lineOneName = "HigherTimeframeRetracementLineOne_" + IntegerToString(i);
+  string lineTwoName = "HigherTimeframeRetracementLineTwo_" + IntegerToString(i);
+  string lineThreeName = "HigherTimeframeRetracementLineThree_" + IntegerToString(i);
+  string lineFourName = "HigherTimeframeRetracementLineFour_" + IntegerToString(i);
+  string rectangleName = "HigherTimeframeHighlightedArea_" + IntegerToString(i);
+
+  // Test Mode - Draw on continuation candles only
+  if (testMode == YES) {
+    if ((i <= 100) && previousCandleClose > previousCandleOpen && iClose(_Symbol, timeframe, i - 1) < iOpen(_Symbol, timeframe, i - 1)) {
+      return;
+    }
+
+    if ((i <= 100) && previousCandleClose < previousCandleOpen && iClose(_Symbol, timeframe, i - 1) > iOpen(_Symbol, timeframe, i - 1)) {
+      return;
+    }
+  }
   
   // Create the object on the current chart but use higher timeframe data
-  datetime time1 = iTime(_Symbol, timeframe, 1);
-  double priceLevel = iClose(_Symbol, timeframe, 1);
+  datetime time1 = iTime(_Symbol, timeframe, i);
+  double priceLevel = iClose(_Symbol, timeframe, i);
 
   // Time to extend the line to
   double time2 = 0;
@@ -384,46 +377,50 @@ void drawHigherTimeframeObjects()
 void removeRetracementOjects()
 {
   for (int i = ObjectsTotal(0); i >= 0; i--) {
-    string name = ObjectName(0,i);
-    
+    string name = ObjectName(0, i);
+
     if (StringFind(name, "RetracementLineOne_") == 0) {
-      ObjectDelete(0,name);
+      ObjectDelete(0, name);
     }
 
     if (StringFind(name, "RetracementLineTwo_") == 0) {
-      ObjectDelete(0,name);
+      ObjectDelete(0, name);
     }
 
     if (StringFind(name, "RetracementLineThree_") == 0) {
-      ObjectDelete(0,name);
+      ObjectDelete(0, name);
     }
 
     if (StringFind(name, "RetracementLineFour_") == 0) {
-      ObjectDelete(0,name);
+      ObjectDelete(0, name);
     }
 
     if (StringFind(name, "HighlightedArea_") == 0) {
-      ObjectDelete(0,name);
+      ObjectDelete(0, name);
     }
 
-    if (StringFind(name, "HigherTimeframeRetracementLineOne") == 0) {
-      ObjectDelete(0,name);
+    if (StringFind(name, "HigherTimeframeRetracementLineOne_") == 0) {
+      ObjectDelete(0, name);
     }
 
-    if (StringFind(name, "HigherTimeframeRetracementLineTwo") == 0) {
-      ObjectDelete(0,name);
+    if (StringFind(name, "HigherTimeframeRetracementLineTwo_") == 0) {
+      ObjectDelete(0, name);
     }
 
-    if (StringFind(name, "HigherTimeframeRetracementLineThree") == 0) {
-      ObjectDelete(0,name);
+    if (StringFind(name, "HigherTimeframeRetracementLineThree_") == 0) {
+      ObjectDelete(0, name);
     }
 
-    if (StringFind(name, "HigherTimeframeRetracementLineFour") == 0) {
-      ObjectDelete(0,name);
+    if (StringFind(name, "HigherTimeframeRetracementLineFour_") == 0) {
+      ObjectDelete(0, name);
     }
 
-    if (StringFind(name, "HigherTimeframeHighlightedArea") == 0) {
-      ObjectDelete(0,name);
+    if (StringFind(name, "HigherTimeframeHighlightedArea_") >= 0) {
+      ObjectDelete(0, name);
     }
+  }
+
+  if (StringFind( ObjectName(0, 1), "HigherTimeframeHighlightedArea_") >= 0) {
+      ObjectDelete(0, "HigherTimeframeHighlightedArea_1");
   }
 }
