@@ -56,6 +56,29 @@ input color rectangleColor = clrYellow; // Rectangle Color
 input YesNo drawHigherTimeframe = YES; // Draw Levels On Higher Timeframe
 input HigherTimeframe higherTimeframe = H12; // Higher Timeframe
 
+input YesNo drawHTLineOne = YES; // Draw Higher Timeframe Line One
+input color htLineOneColor = clrDodgerBlue; // Higher Timeframe Line One Color
+input ENUM_LINE_STYLE htLineOneStyle = STYLE_DOT; // Higher Timeframe Line One Style
+input int htLineOneWidth = 1; // Higher Timeframe Line One Width
+
+input YesNo drawHTLineTwo = YES; // Draw Higher Timeframe Line Two
+input color htLineTwoColor = clrDodgerBlue; // Higher Timeframe Line Two Color
+input ENUM_LINE_STYLE htLineTwoStyle = STYLE_DOT; // Higher Timeframe Line Two Style
+input int htLineTwoWidth = 1; // Higher Timeframe Line Two Width
+
+input YesNo drawHTLineThree = YES; // Draw Higher Timeframe Line Three
+input color htLineThreeColor = clrDodgerBlue; // Higher Timeframe Line Three Color
+input ENUM_LINE_STYLE htLineThreeStyle = STYLE_DOT; // Higher Timeframe Line Three Style
+input int htLineThreeWidth = 1; // Higher Timeframe Line Three Width
+
+input YesNo drawHTLineFour = YES; // Draw Higher Timeframe Line Four
+input color htLineFourColor = clrDodgerBlue; // Higher Timeframe Line Four Color
+input ENUM_LINE_STYLE htLineFourStyle = STYLE_DOT; // Higher Timeframe Line Four Style
+input int htLineFourWidth = 1; // Higher Timeframe Line Four Width
+
+input YesNo drawHTRectangle = YES; // Draw Higher Timeframe Rectangle
+input color htRectangleColor = clrYellow; // Higher Timeframe Rectangle Color
+
 input YesNo testMode = NO; // Test Mode (For Backtesting)
 
 // Lower timeframe buffers
@@ -343,32 +366,43 @@ void drawHigherTimeframeObjects(int i)
   }
 
   // Draw lines extending to the next candle's position
-  ObjectCreate(0, lineOneName, OBJ_TREND, 0, time1, lineOneRetracementLevel, time1 + time2, lineOneRetracementLevel);
-  ObjectSetInteger(0, lineOneName, OBJPROP_COLOR, lineTwoColor);
-  ObjectSetInteger(0, lineOneName, OBJPROP_WIDTH, lineTwoWidth);
-  ObjectSetInteger(0, lineOneName, OBJPROP_STYLE, lineTwoStyle);
+  if (drawHTLineOne == YES) {
+    ObjectCreate(0, lineOneName, OBJ_TREND, 0, time1, lineOneRetracementLevel, time1 + time2, lineOneRetracementLevel);
+    ObjectSetInteger(0, lineOneName, OBJPROP_COLOR, htLineOneColor);
+    ObjectSetInteger(0, lineOneName, OBJPROP_WIDTH, htLineOneWidth);
+    ObjectSetInteger(0, lineOneName, OBJPROP_STYLE, htLineOneStyle);
+  }
+  
+  if (drawHTLineTwo == YES) {
+    ObjectCreate(0, lineTwoName, OBJ_TREND, 0, time1, lineTwoRetracementLevel, time1 + time2, lineTwoRetracementLevel);
+    ObjectSetInteger(0, lineTwoName, OBJPROP_COLOR, htLineTwoColor);
+    ObjectSetInteger(0, lineTwoName, OBJPROP_WIDTH, htLineTwoWidth);
+    ObjectSetInteger(0, lineTwoName, OBJPROP_STYLE, htLineTwoStyle);
+  }
+  
+  if (drawHTLineThree == YES) {
+    ObjectCreate(0, lineThreeName, OBJ_TREND, 0, time1, lineThreeRetracementLevel, time1 + time2, lineThreeRetracementLevel);
+    ObjectSetInteger(0, lineThreeName, OBJPROP_COLOR, htLineThreeColor);
+    ObjectSetInteger(0, lineThreeName, OBJPROP_WIDTH, htLineThreeWidth);
+    ObjectSetInteger(0, lineThreeName, OBJPROP_STYLE, htLineThreeStyle);
+  }
 
-  ObjectCreate(0, lineTwoName, OBJ_TREND, 0, time1, lineTwoRetracementLevel, time1 + time2, lineTwoRetracementLevel);
-  ObjectSetInteger(0, lineTwoName, OBJPROP_COLOR, lineTwoColor);
-  ObjectSetInteger(0, lineTwoName, OBJPROP_WIDTH, lineTwoWidth);
-  ObjectSetInteger(0, lineTwoName, OBJPROP_STYLE, lineTwoStyle);
 
-  ObjectCreate(0, lineThreeName, OBJ_TREND, 0, time1, lineThreeRetracementLevel, time1 + time2, lineThreeRetracementLevel);
-  ObjectSetInteger(0, lineThreeName, OBJPROP_COLOR, lineThreeColor);
-  ObjectSetInteger(0, lineThreeName, OBJPROP_WIDTH, lineThreeWidth);
-  ObjectSetInteger(0, lineThreeName, OBJPROP_STYLE, lineThreeStyle);
-
-  ObjectCreate(0, lineFourName, OBJ_TREND, 0, time1, lineFourRetracementLevel, time1 + time2, lineFourRetracementLevel);
-  ObjectSetInteger(0, lineFourName, OBJPROP_COLOR, lineFourColor);
-  ObjectSetInteger(0, lineFourName, OBJPROP_WIDTH, lineFourWidth);
-  ObjectSetInteger(0, lineFourName, OBJPROP_STYLE, lineFourStyle);
+  if (drawHTLineFour == YES) {
+    ObjectCreate(0, lineFourName, OBJ_TREND, 0, time1, lineFourRetracementLevel, time1 + time2, lineFourRetracementLevel);
+    ObjectSetInteger(0, lineFourName, OBJPROP_COLOR, htLineFourColor);
+    ObjectSetInteger(0, lineFourName, OBJPROP_WIDTH, htLineFourWidth);
+    ObjectSetInteger(0, lineFourName, OBJPROP_STYLE, htLineFourStyle);
+  }
 
   // Highlight the area between Line Two and Line Three with a rectangle
-  ObjectCreate(0, rectangleName, OBJ_RECTANGLE, 0, time1, lineTwoRetracementLevel, time1 + time2, lineFourRetracementLevel);
-  ObjectSetInteger(0, rectangleName, OBJPROP_COLOR, rectangleColor);
-  ObjectSetInteger(0, rectangleName, OBJPROP_BORDER_TYPE, 1);
-  ObjectSetInteger(0, rectangleName, OBJPROP_BORDER_COLOR, rectangleColor);
-  ObjectSetInteger(0, rectangleName, OBJPROP_FILL, true);
+  if (drawHTRectangle == YES) {
+    ObjectCreate(0, rectangleName, OBJ_RECTANGLE, 0, time1, lineTwoRetracementLevel, time1 + time2, lineFourRetracementLevel);
+    ObjectSetInteger(0, rectangleName, OBJPROP_COLOR, htRectangleColor);
+    ObjectSetInteger(0, rectangleName, OBJPROP_BORDER_TYPE, 1);
+    ObjectSetInteger(0, rectangleName, OBJPROP_BORDER_COLOR, htRectangleColor);
+    ObjectSetInteger(0, rectangleName, OBJPROP_FILL, true);
+  }
 }
 
 //+------------------------------------------------------------------+
