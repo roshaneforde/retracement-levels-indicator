@@ -108,6 +108,9 @@ int OnInit()
   SetIndexBuffer(6, higherTimeframeLineThreeBuffer, INDICATOR_DATA);
   SetIndexBuffer(7, higherTimeframeLineFourBuffer, INDICATOR_DATA);
 
+  // Remove all retracement ojects
+  removeRetracementOjects();
+
   return (INIT_SUCCEEDED);
 }
 
@@ -130,9 +133,6 @@ int OnCalculate(const int rates_total,
   if (rates_total <= prev_calculated) {
     return (rates_total);
   }
-
-  // Remove all retracement ojects
-  removeRetracementOjects();
 
   // Draw objects for current chart
   if (drawOnCurrentChart == YES) {
