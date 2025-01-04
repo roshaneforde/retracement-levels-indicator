@@ -74,7 +74,7 @@ If you have suggestions, improvements, or bug fixes, I encourage you to submit p
 
 ## Disclaimer
 
-Any trading decisions you make are entirely your responsibility.
+Any trading decisions you make are entirely your responsibility. Trading carries significant risk, and you could lose all of your invested capital. Please conduct your own research and backtesting before making any trades.
 
 ## License
 
